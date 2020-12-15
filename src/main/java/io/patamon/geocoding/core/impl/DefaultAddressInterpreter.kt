@@ -216,7 +216,7 @@ open class DefaultAddressInterpreter : AddressInterpreter {
 
         val entity = AddressEntity(address)
 
-        // 清洗下开头垃圾数据, 针对海尔用户数据
+        // 清洗下开头垃圾数据, 针对用户数据
         prepare(entity)
         // extractBuildingNum, 提取建筑物号
         extractBuildingNum(entity)
@@ -257,8 +257,8 @@ open class DefaultAddressInterpreter : AddressInterpreter {
             p.matcher("$it").find()
         }
 
-        // 将地址中的 一 -- 等替换为-
-        entity.text = entity.text?.replace(Regex("[一_－/]|(--)"), "-")
+        // 将地址中的 ー－—- 等替换为-
+        entity.text = entity.text?.replace(Regex("[ー_－—/]|(--)"), "-")
     }
 
     // 提取建筑物号
@@ -413,29 +413,33 @@ open class DefaultAddressInterpreter : AddressInterpreter {
         if (entity.text.isNullOrBlank() || !entity.hasProvince() || !entity.hasCity()) return false
 
         var removed = false
-        //采用后序数组方式匹配省市区
+        // 采用后序数组方式匹配省市区
         var endIndex = entity.text!!.length - 2
         var i = 0
         while (i < endIndex) {
             visitor.reset()
             indexBuilder!!.deepMostQuery(entity.text, i, visitor)
-            if (visitor.matchCount() < 2 && visitor.fullMatchCount() < 1) {
-                //没有匹配上，或者匹配上的行政区域个数少于2个认当做无效匹配
+            if (visitor.matchCount() < 2 || visitor.fullMatchCount() < 1) {
+                // 没有匹配上，或者匹配上的行政区域个数少于2个认当做无效匹配
                 i++
                 continue
             }
-            //匹配上的省份、地级市不正确
+            // 匹配上的省份、地级市不正确
             if (entity.province!! != visitor.devision().province || entity.city!! != visitor.devision().city) {
                 i++
                 continue
             }
-            //正确匹配，进行回馈
+            // 正确匹配，进行回馈
             val devision = visitor.devision()
+            // > 修复区信息
             if (!entity.hasDistrict() && devision.hasDistrict() && devision.district!!.parentId == entity.city!!.id)
                 entity.district = devision.district
+            // > 修复街道信息
             if (entity.hasDistrict() && !entity.hasStreet()
-                    && devision.hasStreet() && devision.street!!.parentId == entity.district!!.id)
+                    && devision.hasStreet() && devision.street!!.parentId == entity.district!!.id) {
                 entity.street = devision.street
+            }
+            // > 修复乡镇信息
             if (entity.hasDistrict() && !entity.hasTown()
                     && devision.hasTown() && devision.town!!.parentId == entity.district!!.id)
                 entity.town = devision.town
@@ -448,7 +452,7 @@ open class DefaultAddressInterpreter : AddressInterpreter {
                     && devision.village!!.parentId == entity.district!!.id)
                 entity.village = devision.village
 
-            //正确匹配上，删除
+            // 正确匹配上，删除
             entity.text = entity.text!!.take(visitor.endPosition() + 1)
             endIndex = entity.text!!.length
             i = 0

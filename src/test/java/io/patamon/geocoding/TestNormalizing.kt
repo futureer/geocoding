@@ -63,10 +63,10 @@ class TestNormalizing {
                         null, null,
                         null, null,
                         null, null,
+                        "北一路",
+                        "",
                         null,
-                        null,
-                        null,
-                        "北路虹桥商厦西行100米邮政储蓄银行北路支行附近"
+                        "虹桥商厦西行100米邮政储蓄银行北一路支行附近"
                 )
         )
         assertEquals(Geocoding.normalizing("辽宁 沈阳 辽中县中国辽宁 沈阳 辽中县虹桥商厦苏宁易购"),
@@ -94,7 +94,7 @@ class TestNormalizing {
                         null,
                         null,
                         "3-2-23",
-                        "县城虹桥商厦西侧三单元外跨楼梯"
+                        "辽中县县城虹桥商厦西侧三单元外跨楼梯"
                 )
         )
         assertEquals(Geocoding.normalizing("山东济宁任城区金宇路【杨柳国际新城K8栋3单元1302】(杨柳国际新城·丽宫附近)"),
@@ -221,7 +221,7 @@ class TestNormalizing {
                         null, null,
                         null, null,
                         null, null,
-                        "南十西路",
+                        "南十一西路",
                         "",
                         "12号楼472",
                         "附近第九医院沈阳"
@@ -277,7 +277,7 @@ class TestNormalizing {
                         null, null,
                         null, null,
                         null, null,
-                        "环内会武街",
+                        "一环内会武街",
                         "56号",
                         "4-3-2",
                         ""
@@ -363,7 +363,7 @@ class TestNormalizing {
                         null, null,
                         "泡崖街玉境路",
                         "26号",
-                        "3—2—1",
+                        "3-2-1",
                         ""
                 )
         )
@@ -397,6 +397,79 @@ class TestNormalizing {
                         "北侧楼房"
                 )
         )
+        // Fix issues #10
+        assertEquals(Geocoding.normalizing("福建福州鼓楼区六一路111号金三桥大厦"),
+                Address(
+                        350000000000, "福建省",
+                        350100000000, "福州市",
+                        350102000000, "鼓楼区",
+                        null, null,
+                        null, null,
+                        null, null,
+                        "六一路",
+                        "111号",
+                        null,
+                        "金三桥大厦"
+                )
+        )
+        // Fix issues #8
+        assertEquals(Geocoding.normalizing("广东省河源市源城区中山大道16号华怡小区"),
+                Address(
+                        440000000000, "广东省",
+                        441600000000,"河源市",
+                        441602000000,"源城区",
+                        null, null,
+                        null, null,
+                        null, null,
+                        "中山大道",
+                        "16号",
+                        null,
+                        "华怡小区"
+                )
+
+        )
+        assertEquals(Geocoding.normalizing("广东省河源市中山大道16号华怡小区"),
+                Address(
+                        440000000000, "广东省",
+                        441600000000,"河源市",
+                        null,null,
+                        null, null,
+                        null, null,
+                        null, null,
+                        "中山大道",
+                        "16号",
+                        null,
+                        "华怡小区"
+                )
+        )
+        // Fix issues #9
+        assertEquals(Geocoding.normalizing("浙江省杭州市西湖区中国建设银河西湖支行"),
+                Address(
+                        330000000000, "浙江省",
+                        330100000000,"杭州市",
+                        330106000000,"西湖区",
+                        null, null,
+                        null, null,
+                        null, null,
+                        null,
+                        null,
+                        null,
+                        "中国建设银河西湖支行"
+                )
+        )
+        assertEquals(Geocoding.normalizing("江西赣州市赣县区王母渡镇"),
+                Address(
+                        360000000000, "江西省",
+                        360700000000, "赣州市",
+                        360721000000, "赣县区",
+                        360721101000, "王母渡镇",
+                        360721101000, "王母渡镇",
+                        null, village=null,
+                        null,
+                        null,
+                        null,
+                        ""
+                ))
     }
 
 
